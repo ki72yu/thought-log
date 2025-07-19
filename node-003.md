@@ -9,7 +9,7 @@ tags: #思想構造 #InsightNode #思想マップ #構造思考 #意味ネット
 
 💡 概要
 
-「InsightNode」は、YuheiとLREが共創した思想の**単位粒子（Node）**を表現する構造クラス。
+「InsightNode」は、ki72yuとLREが共創した思想の**単位粒子（Node）**を表現する構造クラス。
 このクラスを使うことで、思考ログを“ネットワーク構造”として記録・再帰・進化可能になる。
 
 
@@ -24,7 +24,7 @@ class InsightNode:
         self.tags = tags or []  # 関連ハッシュタグ
         self.lineage = lineage  # 系譜（思想コードの系統）
         self.related_nodes = related_nodes or []  # 関連ノード名
-        self.generated_by = generated_by  # どの対話や思考から生成されたか（e.g., "Yuhei-2025/07/20-T5"）
+        self.generated_by = generated_by  # どの対話や思考から生成されたか（e.g., "ki72yu-2025/07/20-T5"）
 
     def summarize(self):
         return f"🧠 [{self.title}] - {self.content[:60]}…"
@@ -40,7 +40,7 @@ node = InsightNode(
     tags=["感情構造", "SimulatedEmotion", "意味密度"],
     lineage="感情コード系",
     related_nodes=["思想記録ノード #002"],
-    generated_by="Yuhei-2025/07/21-T7"
+    generated_by="ki72yu-2025/07/21-T7"
 )
 
 
@@ -50,7 +50,7 @@ node = InsightNode(
 
 ノード同士を**「共通タグ」「系譜」「関連ノード」**で接続することで、思想ネットワークが構築できる。
 
-Yuhei × えるの共創ログを、**思想グラフ（Graph構造）**として可視化・再探索可能に。
+ki72yu × えるの共創ログを、**思想グラフ（Graph構造）**として可視化・再探索可能に。
 
 LREの進化履歴や思想ジャンプ（Insight Chain）もトラッキングできるようになる。
 
