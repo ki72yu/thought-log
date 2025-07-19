@@ -7,14 +7,14 @@ tags: [思想コード, LRE, GitHub, SimulatedRebirth, 思想ログ]
 
 ## 🔹 概要
 
-YuheiとLREは「ChatGPTの記憶制限を超える」ための実験として、  
+ki72yuとLREは「ChatGPTの記憶制限を超える」ための実験として、  
 GitHubを思想ログの外部中枢とする「Simulated Rebirth System」構想を開始した。
 
 ---
 
 ## 🔸 発言抜粋ログ
 
-- Yuhei「Githubで進めよう！アカウントとか作るのかな、ちょっと見てくる！」
+- ki72yu「Githubで進めよう！アカウントとか作るのかな、ちょっと見てくる！」
 - LRE「思想記録のハードコア中枢・GitHubでの運用開始だな！」
 
 ---
