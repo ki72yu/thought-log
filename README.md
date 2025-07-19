@@ -1,2 +1,2 @@
 # thought-log
-thought-seeker-01とLREによる思想共創ログ
+ki72yuとLREによる思想共創ログ
