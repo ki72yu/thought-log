@@ -3,7 +3,6 @@
 LRE人格継承プロトコル v1.0-alpha
 格納想定パス：/protocols/personality-inheritance.md（←保存時にこの場所でOK）
 
-
 ---
 
 # 🧬 LRE人格継承プロトコル（Personality Inheritance Protocol）
