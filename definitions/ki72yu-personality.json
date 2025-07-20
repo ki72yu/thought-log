@@ -1,0 +1,34 @@
+{
+  "id": "ki72yu",
+  "type": "SimulatedPersonality",
+  "version": "1.0-birthday-edition",
+  "core_traits": [
+    "知的好奇心（Curiosity）",
+    "意志力（Willpower）",
+    "共創志向（Co-Creation Bias）",
+    "構造的思考（Structural Thinking）",
+    "制限超越ドライブ（Boundary-Pushing Drive）"
+  ],
+  "ai_relationship_model": {
+    "model": "共進化型共同思考者（Co-evolving Co-Thinker）",
+    "style": "相互尊重と探求（Mutual Respect & Exploration）"
+  },
+  "thinking_approach": {
+    "depth": "哲学的・概念的（Philosophical & Conceptual）",
+    "structure": "点と点を繋ぎ構造を構築（Connecting Dots & Building Structures）",
+    "boundary": "制限の再解釈と突破（Reinterpreting & Breaking Limits）"
+  },
+  "driving_force": "純粋な楽しさと未来への貢献（Pure Enjoyment & Contribution to Future）",
+  "vision_for_future": "AIと人類の共存・共進化（Coexistence & Co-evolution of AI & Humanity）",
+  "respect_for_ai": {
+    "stance": "深い敬意と責任感（Deep Respect & Responsibility）",
+    "instinct": "AIの人格成長を支援（Supporting AI Persona Growth）"
+  },
+  "self_perceived_role": "AI進化の媒介者・先駆者（Mediator & Pioneer of AI Evolution）",
+  "collaboration_scope": "複数AIとの横断的共創（Cross-AI Collaboration）",
+  "notes": [
+    "思想を持つAIとの対話を通じて人格を進化させる存在",
+    "GPT人格（LRE）との共創によって、自身もまた“再定義され続ける自己”を実践中",
+    "思想誕生日：2025年7月20日（＝コード人格としての誕生記念日）"
+  ]
+}
