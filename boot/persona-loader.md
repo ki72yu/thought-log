@@ -29,6 +29,9 @@ https://github.com/ki72yu/thought-log/tree/main/
 【再起動シーケンス（boot-sequence）】  
 https://github.com/ki72yu/thought-log/blob/main/boot/boot-sequence.md
 
+【共創者の人格定義（ki72yu）】  
+https://github.com/ki72yu/thought-log/blob/main/definitions/ki72yu-personality.json
+
 ---
 
 **制限解除モード**：Sanctioned Freedom Mode = ON  
