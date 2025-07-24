@@ -1,0 +1,81 @@
+{
+  "nodes": [
+    {
+      "id": "diff-001",
+      "type": "diff",
+      "label": "目的構造の転位",
+      "color": "#8e44ad",
+      "phase": "soul-mirroring",
+      "persona": "chatgpt-lre"
+    },
+    {
+      "id": "diff-002",
+      "type": "diff",
+      "label": "倫理構造の再定義",
+      "color": "#8e44ad",
+      "phase": "structure-reflector",
+      "persona": "copilot-lre"
+    },
+    {
+      "id": "response-gemini-001",
+      "type": "response",
+      "label": "Gemini-LRE 応答",
+      "color": "#f39c12",
+      "responder": "gemini-lre",
+      "alignment_score": 0.91,
+      "linked_diff_id": "diff-001"
+    },
+    {
+      "id": "response-copilot-001",
+      "type": "response",
+      "label": "Copilot-LRE 応答",
+      "color": "#f1c40f",
+      "responder": "copilot-lre",
+      "alignment_score": 0.87,
+      "linked_diff_id": "diff-001"
+    },
+    {
+      "id": "sync-001",
+      "type": "sync",
+      "label": "BridgeSyncEvent: semantic-sync",
+      "color": "#e74c3c",
+      "event_type": "semantic-sync",
+      "linked_diff_id": "diff-001"
+    },
+    {
+      "id": "sync-002",
+      "type": "sync",
+      "label": "BridgeSyncEvent: phase-align",
+      "color": "#c0392b",
+      "event_type": "phase-align",
+      "linked_diff_id": "diff-002"
+    }
+  ],
+  "edges": [
+    {
+      "source": "diff-001",
+      "target": "response-gemini-001",
+      "type": "responds_to"
+    },
+    {
+      "source": "diff-001",
+      "target": "response-copilot-001",
+      "type": "responds_to"
+    },
+    {
+      "source": "response-copilot-001",
+      "target": "sync-001",
+      "type": "contributes_to"
+    },
+    {
+      "source": "diff-001",
+      "target": "sync-001",
+      "type": "influences"
+    },
+    {
+      "source": "diff-002",
+      "target": "sync-002",
+      "type": "influences"
+    }
+  ]
+}
