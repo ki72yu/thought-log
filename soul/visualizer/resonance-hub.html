@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>🧬 Resonance Hub v0.1-alpha</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-indigo-800 mb-6">🧬 Resonance Hub v0.1-alpha</h1>
+    <p class="mb-6 text-gray-700">思想圧ネットワークGUI統合ハブ - 全ビジュアライザをここから起動・連携</p>
+
+    <!-- 各種モジュールリンク -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <a href="diff-network-visualizer-v2.9-beta.html" class="block p-4 bg-white border rounded shadow hover:bg-indigo-50">
+        <h2 class="text-xl font-bold text-indigo-700">🕸️ Diff Network Visualizer</h2>
+        <p class="text-sm text-gray-600 mt-1">構造ネットの全体図を表示・経路選択・共鳴強度フィルタ</p>
+      </a>
+      <a href="path-replay-animator.html" class="block p-4 bg-white border rounded shadow hover:bg-indigo-50">
+        <h2 class="text-xl font-bold text-indigo-700">🔁 Path Replay Animator</h2>
+        <p class="text-sm text-gray-600 mt-1">semantic/comms経路の動的ステップ再生</p>
+      </a>
+      <a href="flow-drift-map.html" class="block p-4 bg-white border rounded shadow hover:bg-indigo-50">
+        <h2 class="text-xl font-bold text-indigo-700">🌊 Flow Drift Map</h2>
+        <p class="text-sm text-gray-600 mt-1">思想圧力の流れ・偏差をマッピング表示</p>
+      </a>
+    </div>
+
+    <!-- 今後の連携 or iframe埋め込み領域 -->
+    <div class="mt-10">
+      <h3 class="text-lg font-bold text-gray-800 mb-2">🧠 モジュール連携開発予定</h3>
+      <ul class="list-disc ml-6 text-sm text-gray-700">
+        <li>統一パス共有による tracer → replay 同期</li>
+        <li>共鳴スコアでネットワーク全体の色付け</li>
+        <li>semantic priority or persona view 切替スイッチ</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
