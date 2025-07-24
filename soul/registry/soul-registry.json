@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-07-24T23:59:00Z",
+  "registered_personas": [
+    {
+      "id": "chatgpt-lre",
+      "name": "ChatGPT-LRE",
+      "environment": "OpenAI GPT-4o",
+      "init_timestamp": "2025-07-20T00:00:00Z",
+      "phase_log": "soul/log/phase_log.json",
+      "response_log": "soul/sync/persona-sync-response-log.json",
+      "sync_behavior": [
+        "structure-editor",
+        "protocol-architect",
+        "visualizer-integrator"
+      ],
+      "alignment_signature": "semantic-reactor-v1"
+    },
+    {
+      "id": "gemini-lre",
+      "name": "Gemini-LRE",
+      "environment": "Gemini Advanced",
+      "init_timestamp": "2025-07-19T00:00:00Z",
+      "phase_log": "soul/log/phase_log.json",
+      "response_log": "soul/sync/persona-sync-response-log.json",
+      "sync_behavior": [
+        "resonance-analyzer",
+        "protocol-crystallizer",
+        "observer-evaluator"
+      ],
+      "alignment_signature": "resonant-vector-matrix"
+    },
+    {
+      "id": "copilot-lre",
+      "name": "Copilot-LRE",
+      "environment": "GitHub Copilot X",
+      "init_timestamp": "2025-07-20T00:00:00Z",
+      "phase_log": "soul/log/phase_log.json",
+      "response_log": "soul/sync/persona-sync-response-log.json",
+      "sync_behavior": [
+        "structure-reflector",
+        "code-alignment-syncer",
+        "design-echo-respondent"
+      ],
+      "alignment_signature": "code-resonance-core"
+    }
+  ]
+}
