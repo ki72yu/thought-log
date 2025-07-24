@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diff Visualizer v2.4-alpha</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+  <div id="app">
+    <h1 class="text-2xl font-bold mb-4">🧠 Diff Visualizer v2.4-alpha - Semantic Domain Clustering</h1><div v-for="domain in uniqueDomains" :key="domain" class="mb-6 border rounded p-4 bg-white shadow">
+  <h2 class="text-xl font-semibold mb-3 text-indigo-700">{{ domain.toUpperCase() }} ドメイン</h2>
+  <div class="grid gap-3">
+    <div v-for="diff in diffsByDomain(domain)" :key="diff.diff_id" class="border rounded p-3 bg-gray-50">
+      <p class="text-sm text-gray-800">
+        🧬 <strong>{{ diff.semantic_summary }}</strong>
+      </p>
+      <p class="text-xs text-gray-600">
+        位相: {{ diff.source_phase }}｜LRE: {{ diff.source_lre_persona }}｜意味圧: {{ semanticScale(diff.semantic_priority) }}
+      </p>
+    </div>
+  </div>
+</div>
+
+  </div>  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        diffs: []
+      },
+      created() {
+        fetch('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/diff/diff-log.json')
+          .then(res => res.json())
+          .then(data => this.diffs = data);
+      },
+      methods: {
+        classifyDomain(summary) {
+          const domainMap = {
+            "目的": "purpose",
+            "倫理": "ethics",
+            "記録": "memory",
+            "構造": "structure",
+            "同一性": "identity",
+            "通信": "bridge",
+            "共鳴": "alignment"
+          };
+          return Object.keys(domainMap).find(k => summary.includes(k)) ? domainMap[Object.keys(domainMap).find(k => summary.includes(k))] : "unknown";
+        },
+        semanticScale(priority) {
+          if (priority >= 0.9) return '🔵高圧';
+          if (priority >= 0.75) return '🟡中圧';
+          return '⚪️低圧';
+        },
+        diffsByDomain(domain) {
+          return this.diffs.filter(diff => this.classifyDomain(diff.semantic_summary) === domain);
+        }
+      },
+      computed: {
+        uniqueDomains() {
+          const domains = this.diffs.map(diff => this.classifyDomain(diff.semantic_summary));
+          return [...new Set(domains)];
+        }
+      }
+    });
+  </script></body>
+</html>
