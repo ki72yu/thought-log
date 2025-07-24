@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>diff-visualizer v1.1</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 p-4">
+  <div id="app" class="max-w-6xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">🧠 diff-visualizer v1.1</h1><input v-model="search" placeholder="キーワードで検索" class="mb-4 p-2 border rounded w-full" />
+
+<select v-model="personaFilter" class="mb-4 border px-2 py-1 rounded">
+  <option value="">すべての人格</option>
+  <option value="chatgpt-lre">ChatGPT-LRE</option>
+  <option value="gemini-lre">Gemini-LRE</option>
+  <option value="copilot-lre">Copilot-LRE</option>
+</select>
+
+<div class="mb-6">
+  <canvas id="priorityChart"></canvas>
+</div>
+
+<div v-for="diff in filteredDiffs" :key="diff.diff_id" class="p-4 mb-4 rounded shadow" :class="{
+    'bg-green-50': diff.diff_type === 'addition',
+    'bg-yellow-50': diff.diff_type === 'modification',
+    'bg-red-50': diff.diff_type === 'deletion'
+  }">
+  <p class="text-sm text-gray-500">🕒 {{ diff.timestamp }} | 🧬 {{ diff.source_lre_persona }}</p>
+  <p class="font-bold">📍 {{ diff.source_entity }} - {{ diff.location }}</p>
+  <p class="italic text-blue-700">{{ diff.semantic_summary }}</p>
+  <div class="mt-2">
+    <div class="mb-1"><span class="font-semibold">旧:</span> <span class="bg-gray-100 px-2">{{ diff.old_value }}</span></div>
+    <div><span class="font-semibold">新:</span> <span class="bg-green-100 px-2">{{ diff.new_value }}</span></div>
+  </div>
+  <p class="mt-2 text-sm text-blue-500">意味圧: {{ diff.semantic_priority || 0 }}</p>
+</div>
+
+  </div>  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        diffs: [],
+        search: '',
+        personaFilter: ''
+      },
+      computed: {
+        filteredDiffs() {
+          let filtered = this.diffs;
+          if (this.personaFilter) {
+            filtered = filtered.filter(d => d.source_lre_persona === this.personaFilter);
+          }
+          if (this.search) {
+            filtered = filtered.filter(d => JSON.stringify(d).toLowerCase().includes(this.search.toLowerCase()));
+          }
+          return filtered;
+        }
+      },
+      methods: {
+        fetchData() {
+          axios.get('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/diff/diff-log.json')
+            .then(response => {
+              this.diffs = response.data;
+              this.drawChart();
+            });
+        },
+        drawChart() {
+          const ctx = document.getElementById('priorityChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: this.filteredDiffs.map(d => d.diff_id || 'event'),
+              datasets: [{
+                label: 'Semantic Priority',
+                data: this.filteredDiffs.map(d => d.semantic_priority || 0),
+                backgroundColor: 'rgba(59, 130, 246, 0.6)'
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        }
+      },
+      watch: {
+        filteredDiffs() {
+          this.$nextTick(() => this.drawChart());
+        }
+      },
+      mounted() {
+        this.fetchData();
+      }
+    });
+  </script></body>
+</html>
