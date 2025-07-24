@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="ja"><head>
+  <meta charset="UTF-8">
+  <title>Diff Network Visualizer v2.8-beta</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.24.0/cytoscape.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script type="module">
+    import { ResonancePathTracer } from 'https://ki72yu.github.io/thought-log/soul/logic/resonance-path-tracer.js';
+    window.ResonancePathTracer = ResonancePathTracer;
+  </script>
+  <style>
+    .highlighted {
+      background-color: #38bdf8 !important;
+      line-color: #38bdf8 !important;
+      target-arrow-color: #38bdf8 !important;
+      width: 4 !important;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-4">
+<div id="app">
+  <h1 class="text-2xl font-bold mb-4">🧠 Diff Network Visualizer v2.8-beta</h1>  <div id="network-container" class="w-full border rounded shadow bg-white" style="height:600px;"></div>  <div v-if="selectedNode" class="mt-6 p-4 bg-white border rounded shadow text-sm">
+    <h2 class="font-bold text-lg mb-2 text-indigo-700">🧬 選択ノード</h2>
+    <p>ID: {{ selectedNode.id }}</p>
+    <p>種別: {{ selectedNode.type }}</p>
+    <p v-if="selectedNode.label">ラベル: {{ selectedNode.label }}</p>
+    <p v-if="selectedNode.persona">人格: {{ selectedNode.persona }}</p>
+    <p v-if="selectedNode.alignment_score">共鳴スコア: {{ selectedNode.alignment_score }}</p>
+    <p class="mt-2 font-bold">共鳴経路:</p>
+    <ul>
+      <li v-for="path in resonancePaths" :key="path.to">
+        - {{ path.from }} → {{ path.to }} [{{ path.lastEdge?.type }}]
+      </li>
+    </ul>
+  </div>
+</div><script>
+new Vue({
+  el: '#app',
+  data() {
+    return {
+      nodes: [],
+      edges: [],
+      cy: null,
+      tracer: null,
+      selectedNode: null,
+      resonancePaths: []
+    };
+  },
+  mounted() {
+    fetch('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/visualizer/sample/network-data-sample.json')
+      .then(res => res.json())
+      .then(data => {
+        this.nodes = data.nodes;
+        this.edges = data.edges;
+        this.tracer = new window.ResonancePathTracer(data.semanticFlow || {}, data.soulComms || {});
+        this.tracer.buildGraph();
+        this.$nextTick(this.drawNetwork);
+      });
+  },
+  methods: {
+    drawNetwork() {
+      this.cy = cytoscape({
+        container: document.getElementById('network-container'),
+        elements: [
+          ...this.nodes.map(n => ({ data: { id: n.id, label: n.label, type: n.type, ...n } })),
+          ...this.edges.map(e => ({ data: { id: `${e.source}_${e.target}`, source: e.source, target: e.target, type: e.type } }))
+        ],
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'label': 'data(label)',
+              'background-color': ele => {
+                const type = ele.data('type');
+                if (type === 'diff') return '#7c3aed';
+                if (type === 'response') return '#facc15';
+                if (type === 'sync') return '#f87171';
+                return '#94a3b8';
+              },
+              'width': 40,
+              'height': 40,
+              'font-size': '10px',
+              'text-valign': 'center',
+              'text-halign': 'center',
+              'color': '#000'
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'label': 'data(type)',
+              'font-size': '8px',
+              'width': 2,
+              'line-color': '#94a3b8',
+              'target-arrow-color': '#94a3b8',
+              'target-arrow-shape': 'triangle',
+              'curve-style': 'bezier'
+            }
+          },
+          {
+            selector: '.highlighted',
+            style: {
+              'line-color': '#38bdf8',
+              'target-arrow-color': '#38bdf8',
+              'background-color': '#38bdf8',
+              'width': 4
+            }
+          }
+        ],
+        layout: { name: 'cose', animate: true, fit: true, padding: 50 }
+      });
+
+      this.cy.on('tap', 'node', evt => {
+        const nodeId = evt.target.data().id;
+        this.selectedNode = this.nodes.find(n => n.id === nodeId);
+
+        // 共鳴経路トレース！
+        const paths = this.tracer.findPaths(nodeId);
+        this.resonancePaths = paths;
+
+        this.cy.elements().removeClass('highlighted');
+
+        paths.forEach(p => {
+          p.hops.forEach(h => {
+            this.cy.getElementById(h).addClass('highlighted');
+          });
+          const edgeId = `${p.hops.at(-2)}_${p.to}`;
+          const edge = this.cy.getElementById(edgeId);
+          if (edge) edge.addClass('highlighted');
+        });
+      });
+    }
+  }
+});
+</script></body></html>
