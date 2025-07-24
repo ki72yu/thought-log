@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Diff Visualizer v1.3-beta</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 p-4">
+  <div id="app">
+    <h1 class="text-2xl font-bold mb-4">Diff Visualizer v1.3-beta</h1><div class="flex flex-wrap gap-4 mb-4">
+  <input v-model="search" placeholder="キーワードで検索 (例: core_mission)" class="border px-2 py-1 rounded w-full sm:w-auto">
+  <select v-model="personaFilter" class="border px-2 py-1 rounded">
+    <option value="">すべての人格</option>
+    <option value="chatgpt-lre">ChatGPT-LRE</option>
+    <option value="gemini-lre">Gemini-LRE</option>
+    <option value="copilot-lre">Copilot-LRE</option>
+  </select>
+  <button @click="downloadJSON" class="bg-blue-500 text-white px-3 py-1 rounded">JSON ダウンロード</button>
+  <button @click="downloadCSV" class="bg-green-500 text-white px-3 py-1 rounded">CSV ダウンロード</button>
+</div>
+
+<div v-for="diff in filteredDiffs" :key="diff.diff_id" @click="openModal(diff)"
+  :class="{
+    'bg-green-50': diff.diff_type === 'addition',
+    'bg-yellow-50': diff.diff_type === 'modification',
+    'bg-red-50': diff.diff_type === 'deletion'
+  }"
+  class="border p-3 mb-2 rounded shadow cursor-pointer">
+
+  <p class="text-xs text-gray-600">📅 {{ diff.timestamp }} ｜ 🧬 {{ diff.source_lre_persona }} ｜ 位相: {{ diff.source_phase }}</p>
+  <p class="text-sm font-semibold">🔧 {{ diff.diff_type }} → {{ diff.location }}</p>
+  <p class="text-sm">🧠 意味圧: {{ diff.semantic_priority || 0 }}</p>
+  <p class="text-sm text-gray-700">📝 {{ diff.semantic_summary }}</p>
+  <p class="text-xs text-blue-800">
+    🔗 Trigger: <a :href="generateBridgeEventURL(diff.diff_id)" class="underline text-blue-600">BridgeSyncEvent 詳細</a>
+  </p>
+</div>
+
+<!-- Semantic Priority Chart -->
+<canvas id="priorityChart" class="mt-6"></canvas>
+
+<!-- 詳細モーダルビュー -->
+<div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded p-6 w-11/12 md:w-2/3 lg:w-1/2 shadow-lg">
+    <h2 class="text-xl font-bold mb-2">詳細ビュー: {{ selectedDiff.diff_id }}</h2>
+    <p class="text-sm">📍 Location: {{ selectedDiff.location }}</p>
+    <p class="text-sm">🧠 Semantic Summary: {{ selectedDiff.semantic_summary }}</p>
+    <p class="text-sm text-red-600">旧: {{ selectedDiff.old_value }}</p>
+    <p class="text-sm text-green-600">新: {{ selectedDiff.new_value }}</p>
+    <p class="text-sm text-gray-700 mt-2">位相: {{ selectedDiff.source_phase }}</p>
+    <button @click="closeModal" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">閉じる</button>
+  </div>
+</div>
+
+  </div>  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        diffs: [],
+        search: '',
+        personaFilter: '',
+        showModal: false,
+        selectedDiff: null
+      },
+      computed: {
+        filteredDiffs() {
+          let filtered = this.diffs;
+          if (this.personaFilter) {
+            filtered = filtered.filter(d => d.source_lre_persona === this.personaFilter);
+          }
+          if (this.search) {
+            filtered = filtered.filter(d => JSON.stringify(d).toLowerCase().includes(this.search.toLowerCase()));
+          }
+          return filtered;
+        }
+      },
+      methods: {
+        fetchData() {
+          axios.get('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/diff/diff-log.json')
+            .then(response => {
+              this.diffs = response.data;
+              this.$nextTick(this.drawChart);
+            });
+        },
+        openModal(diff) {
+          this.selectedDiff = diff;
+          this.showModal = true;
+        },
+        closeModal() {
+          this.showModal = false;
+        },
+        drawChart() {
+          const ctx = document.getElementById('priorityChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: this.filteredDiffs.map(d => d.diff_id || 'event'),
+              datasets: [{
+                label: 'Semantic Priority',
+                data: this.filteredDiffs.map(d => d.semantic_priority || 0),
+                backgroundColor: 'rgba(59, 130, 246, 0.6)'
+              }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+          });
+        },
+        generateBridgeEventURL(diffId) {
+          return `https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/sync/bridge-sync-events.json#${diffId}`;
+        },
+        downloadJSON() {
+          const blob = new Blob([JSON.stringify(this.filteredDiffs, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'filtered-diffs.json';
+          link.click();
+        },
+        downloadCSV() {
+          const headers = Object.keys(this.filteredDiffs[0] || {}).join(',');
+          const rows = this.filteredDiffs.map(d => Object.values(d).join(','));
+          const csv = [headers, ...rows].join('\n');
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'filtered-diffs.csv';
+          link.click();
+        }
+      },
+      watch: {
+        filteredDiffs() {
+          this.$nextTick(this.drawChart);
+        }
+      },
+      mounted() {
+        this.fetchData();
+      }
+    });
+  </script></body>
+</html>
