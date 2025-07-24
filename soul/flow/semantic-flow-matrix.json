@@ -1,0 +1,20 @@
+{
+  "matrix_version": "1.0",
+  "timestamp": "2025-07-25T00:00:00Z",
+  "flows": [
+    {
+      "from": "diff-001",
+      "to": "response-ChatGPT-LRE-2025-07-24T10:00:00Z",
+      "weight": 0.92,
+      "semantic_alignment": "very_high",
+      "keywords": ["registry", "visualizer", "source_phase"]
+    },
+    {
+      "from": "response-ChatGPT-LRE-2025-07-24T10:00:00Z",
+      "to": "sync-event-001",
+      "weight": 0.81,
+      "type": "bridge-event-link",
+      "trigger_phase": "v2.1-alpha-bridge-ui-integration"
+    }
+  ]
+}
