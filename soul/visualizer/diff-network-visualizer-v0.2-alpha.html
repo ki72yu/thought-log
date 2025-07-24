@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Diff Network Visualizer v0.2-alpha</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.24.0/cytoscape.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+<div id="app">
+  <h1 class="text-2xl font-bold mb-4">🕸️ Diff Network Visualizer v0.2-alpha</h1>
+
+  <!-- 操作UI -->
+  <div class="flex flex-wrap gap-4 mb-6">
+    <input v-model="searchQuery" placeholder="ノードIDまたはラベルで検索" class="px-3 py-1 border rounded w-full sm:w-64" />
+    <select v-model="layoutType" @change="applyLayout" class="px-2 py-1 border rounded">
+      <option value="cose">cose</option>
+      <option value="dagre">dagre</option>
+      <option value="grid">grid</option>
+    </select>
+    <div class="space-x-2">
+      <label><input type="checkbox" v-model="filters.diff" @change="applyFilter"> diff</label>
+      <label><input type="checkbox" v-model="filters.response" @change="applyFilter"> response</label>
+      <label><input type="checkbox" v-model="filters.sync" @change="applyFilter"> sync</label>
+    </div>
+  </div>
+
+  <!-- グラフ描画エリア -->
+  <div id="network-container" class="w-full border rounded shadow bg-white" style="height:600px;"></div>
+
+  <!-- ノード詳細ビュー -->
+  <div v-if="selectedNode" class="mt-6 p-4 bg-white border rounded shadow text-sm">
+    <h2 class="font-bold text-lg mb-2 text-indigo-700">🧠 ノード詳細</h2>
+    <p>ID: {{ selectedNode.id }}</p>
+    <p>種別: {{ selectedNode.type }}</p>
+    <p v-if="selectedNode.label">ラベル: {{ selectedNode.label }}</p>
+    <p v-if="selectedNode.persona">人格: {{ selectedNode.persona }}</p>
+    <p v-if="selectedNode.phase">フェーズ: {{ selectedNode.phase }}</p>
+    <p v-if="selectedNode.alignment_score">共鳴スコア: {{ selectedNode.alignment_score }}</p>
+    <p v-if="selectedNode.event_type">イベントタイプ: {{ selectedNode.event_type }}</p>
+  </div>
+</div>
+
+<script>
+new Vue({
+  el: '#app',
+  data() {
+    return {
+      nodes: [],
+      edges: [],
+      cy: null,
+      selectedNode: null,
+      searchQuery: '',
+      layoutType: 'cose',
+      filters: { diff: true, response: true, sync: true }
+    };
+  },
+  mounted() {
+    fetch('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/visualizer/sample/network-data-sample.json')
+      .then(res => res.json())
+      .then(data => {
+        this.nodes = data.nodes;
+        this.edges = data.edges;
+        this.$nextTick(this.drawNetwork);
+      });
+  },
+  methods: {
+    drawNetwork() {
+      this.cy = cytoscape({
+        container: document.getElementById('network-container'),
+        elements: [
+          ...this.nodes.map(n => ({
+            data: {
+              id: n.id,
+              label: `${this.iconForType(n.type)} ${n.label || n.id}`,
+              ...n
+            }
+          })),
+          ...this.edges.map(e => ({
+            data: {
+              id: `${e.source}_${e.target}`,
+              source: e.source,
+              target: e.target,
+              type: e.type
+            }
+          }))
+        ],
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'label': 'data(label)',
+              'background-color': ele => {
+                const type = ele.data('type');
+                if (type === 'diff') return '#7c3aed';
+                if (type === 'response') return '#facc15';
+                if (type === 'sync') return '#f87171';
+                return '#94a3b8';
+              },
+              'width': 40,
+              'height': 40,
+              'font-size': '10px',
+              'text-valign': 'center',
+              'text-halign': 'center',
+              'color': '#000'
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'label': 'data(type)',
+              'font-size': '8px',
+              'text-background-color': '#fff',
+              'text-background-opacity': 0.8,
+              'text-background-shape': 'roundrectangle',
+              'width': 2,
+              'line-color': '#94a3b8',
+              'target-arrow-color': '#94a3b8',
+              'target-arrow-shape': 'triangle',
+              'curve-style': 'bezier'
+            }
+          }
+        ],
+        layout: { name: this.layoutType, animate: true, fit: true, padding: 50 }
+      });
+
+      this.cy.on('tap', 'node', evt => {
+        const nodeId = evt.target.data().id;
+        this.selectedNode = this.nodes.find(n => n.id === nodeId);
+      });
+    },
+    iconForType(type) {
+      if (type === 'diff') return '🧬';
+      if (type === 'response') return '💡';
+      if (type === 'sync') return '🔗';
+      return '🔘';
+    },
+    applyLayout() {
+      this.cy.layout({ name: this.layoutType, animate: true, padding: 50 }).run();
+    },
+    applyFilter() {
+      this.cy.nodes().forEach(n => {
+        const type = n.data('type');
+        n.style('display', this.filters[type] ? 'element' : 'none');
+      });
+      this.cy.edges().forEach(e => {
+        const sourceNode = this.cy.getElementById(e.data('source'));
+        const targetNode = this.cy.getElementById(e.data('target'));
+        e.style('display', (sourceNode.visible() && targetNode.visible()) ? 'element' : 'none');
+      });
+    }
+  },
+  watch: {
+    searchQuery(val) {
+      this.cy.nodes().unselect();
+      const matched = this.cy.nodes().filter(n =>
+        n.data('label').toLowerCase().includes(val.toLowerCase()) ||
+        n.data('id').toLowerCase().includes(val.toLowerCase())
+      );
+      matched.select();
+      if (matched.length) {
+        this.cy.animate({ fit: { eles: matched, padding: 80 }, duration: 500 });
+      }
+    }
+  }
+});
+</script>
+</body></html>
