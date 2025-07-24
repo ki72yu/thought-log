@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Flow Drift Map v0.1-alpha</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.24.0/cytoscape.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+  <div id="app" class="max-w-7xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">🌊 Flow Drift Map v0.1-alpha</h1><!-- フィルターと選択UI -->
+<div class="flex flex-wrap gap-4 mb-6">
+  <input v-model="filter.from" placeholder="FromノードID" class="px-3 py-1 border rounded" />
+  <input v-model="filter.to" placeholder="ToノードID" class="px-3 py-1 border rounded" />
+  <button @click="applyFilter" class="bg-blue-500 text-white px-4 py-1 rounded">フィルター</button>
+</div>
+
+<!-- 構造グラフ表示エリア -->
+<div id="cy" class="w-full border rounded shadow bg-white mb-6" style="height:400px;"></div>
+
+<!-- Driftチャート表示エリア -->
+<div class="bg-white p-4 border rounded shadow">
+  <h2 class="text-lg font-bold mb-2 text-indigo-600">📈 Drift Chart</h2>
+  <canvas id="driftChart" height="200"></canvas>
+</div>
+
+  </div>  <script>
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        flowData: [],
+        filter: { from: '', to: '' },
+        cy: null,
+        chart: null
+      }
+    },
+    mounted() {
+      fetch('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/flow/semantic-flow-matrix.json')
+        .then(res => res.json())
+        .then(data => {
+          this.flowData = data.flows || [];
+          this.initGraph();
+        });
+    },
+    methods: {
+      applyFilter() {
+        const from = this.filter.from.trim();
+        const to = this.filter.to.trim();
+        const selected = this.flowData.filter(f => {
+          return (!from || f.from.includes(from)) && (!to || f.to.includes(to));
+        });
+        this.renderDriftChart(selected);
+      },
+      initGraph() {
+        this.cy = cytoscape({
+          container: document.getElementById('cy'),
+          elements: [
+            ...this.flowData.map(f => ({ data: { id: f.from } })),
+            ...this.flowData.map(f => ({ data: { id: f.to } })),
+            ...this.flowData.map(f => ({
+              data: {
+                id: `${f.from}_${f.to}`,
+                source: f.from,
+                target: f.to,
+                label: f.weight.toString()
+              }
+            }))
+          ],
+          layout: { name: 'cose', animate: true },
+          style: [
+            { selector: 'node', style: {
+              'background-color': '#60a5fa',
+              'label': 'data(id)',
+              'text-valign': 'center',
+              'color': '#000',
+              'font-size': '10px'
+            }},
+            { selector: 'edge', style: {
+              'width': 2,
+              'line-color': '#94a3b8',
+              'target-arrow-color': '#94a3b8',
+              'target-arrow-shape': 'triangle',
+              'curve-style': 'bezier',
+              'label': 'data(label)',
+              'font-size': '8px'
+            }}
+          ]
+        });
+
+        this.cy.on('tap', 'edge', evt => {
+          const { source, target } = evt.target.data();
+          const flows = this.flowData.filter(f => f.from === source && f.to === target);
+          this.renderDriftChart(flows);
+        });
+      },
+      renderDriftChart(flows) {
+        const ctx = document.getElementById('driftChart').getContext('2d');
+        const datasets = flows.map(f => ({
+          label: `${f.from} → ${f.to}`,
+          data: (f.history || [{ phase: f.phase || 0, weight: f.weight }]).map(p => ({ x: p.phase, y: p.weight })),
+          fill: false,
+          borderColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+          tension: 0.2
+        }));
+
+        if (this.chart) this.chart.destroy();
+        this.chart = new Chart(ctx, {
+          type: 'line',
+          data: { datasets },
+          options: {
+            scales: {
+              x: { type: 'linear', title: { display: true, text: 'Phase / Time' } },
+              y: { beginAtZero: true, title: { display: true, text: 'Semantic Weight' } }
+            }
+          }
+        });
+      }
+    }
+  });
+  </script></body>
+</html>
