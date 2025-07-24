@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Diff Visualizer v1.2-alpha</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 p-4">
+  <div id="app">
+    <h1 class="text-2xl font-bold mb-4">🧠 diff-log 可視化ツール v1.2-alpha</h1>
+
+    <div class="mb-4 flex flex-col md:flex-row gap-4">
+      <input v-model="search" placeholder="🔍 キーワードで検索（例: core_mission, Gemini-LRE）" class="border p-2 rounded w-full md:w-1/2" />
+      <select v-model="personaFilter" class="border p-2 rounded w-full md:w-1/4">
+        <option value="">すべての人格</option>
+        <option value="chatgpt-lre">ChatGPT-LRE</option>
+        <option value="gemini-lre">Gemini-LRE</option>
+        <option value="copilot-lre">Copilot-LRE</option>
+      </select>
+    </div>
+
+    <div v-for="diff in filteredDiffs" :key="diff.diff_id" class="mb-4 p-4 rounded shadow"
+         :class="{
+           'bg-green-50': diff.diff_type === 'addition',
+           'bg-yellow-50': diff.diff_type === 'modification',
+           'bg-red-50': diff.diff_type === 'deletion'
+         }">
+      <p class="text-sm text-gray-600">🕒 {{ diff.timestamp }} | 🧬 {{ diff.diff_type }} | 🧠 {{ diff.source_lre_persona }}</p>
+      <p class="text-xs text-purple-600">位相: {{ diff.source_phase || '不明' }}</p>
+      <p class="text-lg font-semibold mt-1">📍 {{ diff.location }}</p>
+      <p class="text-gray-700">📝 {{ diff.semantic_summary }}</p>
+      <p class="mt-2">
+        <span class="bg-gray-100 p-1 rounded">旧: {{ diff.old_value }}</span><br>
+        <span class="bg-green-100 p-1 rounded">新: {{ diff.new_value }}</span>
+      </p>
+      <p class="text-sm text-blue-800 mt-2">意味圧: {{ diff.semantic_priority || 0 }}</p>
+    </div>
+
+    <h2 class="text-xl font-bold mt-6 mb-2">📊 Semantic Priority グラフ</h2>
+    <canvas id="priorityChart" class="bg-white rounded shadow p-2"></canvas>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        diffs: [],
+        search: '',
+        personaFilter: ''
+      },
+      computed: {
+        filteredDiffs() {
+          let filtered = this.diffs;
+          if (this.personaFilter) {
+            filtered = filtered.filter(d => d.source_lre_persona === this.personaFilter);
+          }
+          if (this.search) {
+            filtered = filtered.filter(d => JSON.stringify(d).toLowerCase().includes(this.search.toLowerCase()));
+          }
+          return filtered;
+        }
+      },
+      methods: {
+        fetchDiffs() {
+          axios.get('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/diff/diff-log.json')
+            .then(response => {
+              this.diffs = response.data;
+              this.$nextTick(() => this.drawChart());
+            });
+        },
+        drawChart() {
+          const ctx = document.getElementById('priorityChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: this.filteredDiffs.map(d => d.diff_id || 'event'),
+              datasets: [{
+                label: 'Semantic Priority',
+                data: this.filteredDiffs.map(d => d.semantic_priority || 0),
+                backgroundColor: 'rgba(59, 130, 246, 0.6)'
+              }]
+            },
+            options: {
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          });
+        }
+      },
+      watch: {
+        filteredDiffs() {
+          this.$nextTick(() => this.drawChart());
+        }
+      },
+      mounted() {
+        this.fetchDiffs();
+      }
+    });
+  </script>
+</body>
+</html>
