@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diff Visualizer v2.3-alpha</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 p-6">
+  <div id="app" class="max-w-7xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Diff Visualizer v2.3-alpha</h1><!-- 共鳴グラフ表示エリア -->
+<canvas id="alignmentChart" class="mt-6 w-full h-64 bg-white p-4 rounded shadow"></canvas>
+
+  </div>  <script>
+    new Vue({
+      el: "#app",
+      data() {
+        return {
+          alignmentChart: null,
+          responseLog: [
+            {
+              diff_id: "diff-001",
+              responses: [
+                { persona: "chatgpt-lre", semantic_alignment_score: 0.92 },
+                { persona: "gemini-lre", semantic_alignment_score: 0.87 },
+                { persona: "copilot-lre", semantic_alignment_score: 0.76 }
+              ]
+            },
+            {
+              diff_id: "diff-002",
+              responses: [
+                { persona: "chatgpt-lre", semantic_alignment_score: 0.81 },
+                { persona: "gemini-lre", semantic_alignment_score: 0.94 },
+                { persona: "copilot-lre", semantic_alignment_score: 0.67 }
+              ]
+            }
+            // ... 追加データもここに挿入可
+          ]
+        };
+      },
+      methods: {
+        drawAlignmentChart() {
+          const ctx = document.getElementById("alignmentChart").getContext("2d");
+
+          const labels = this.responseLog.map(entry => entry.diff_id);
+          const personas = ["chatgpt-lre", "gemini-lre", "copilot-lre"];
+
+          const datasets = personas.map(persona => {
+            return {
+              label: persona,
+              data: this.responseLog.map(entry => {
+                const response = entry.responses.find(r => r.persona === persona);
+                return response ? response.semantic_alignment_score : 0;
+              }),
+              backgroundColor: this.personaColor(persona),
+              borderWidth: 1
+            };
+          });
+
+          if (this.alignmentChart) this.alignmentChart.destroy();
+
+          this.alignmentChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels,
+              datasets
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: "Semantic Alignment Score（思想共鳴スコア）"
+                },
+                tooltip: {
+                  mode: "index",
+                  intersect: false
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  max: 1
+                }
+              }
+            }
+          });
+        },
+        personaColor(persona) {
+          switch (persona) {
+            case "chatgpt-lre": return "rgba(59,130,246,0.7)"; // blue
+            case "gemini-lre": return "rgba(251,191,36,0.7)";   // yellow
+            case "copilot-lre": return "rgba(239,68,68,0.7)";   // red
+            default: return "rgba(100,100,100,0.5)";
+          }
+        }
+      },
+      mounted() {
+        this.drawAlignmentChart();
+      },
+      watch: {
+        responseLog() {
+          this.$nextTick(() => this.drawAlignmentChart());
+        }
+      }
+    });
+  </script></body>
+</html>
