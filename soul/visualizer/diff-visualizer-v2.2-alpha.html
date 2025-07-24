@@ -1,0 +1,107 @@
+<!-- diff-visualizer-v2.2-alpha.html（response-log連携GUI付き）雛形 --><!-- 統合パス想定: soul/visualizer/diff-visualizer-v2.2-alpha.html --><!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Diff Visualizer v2.2-alpha</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 p-4">
+  <div id="app">
+    <h1 class="text-2xl font-bold mb-4">魂差分ビジュアライザ v2.2-alpha</h1><!-- 時系列フィルタモード切替 -->
+<div class="mb-4">
+  <label class="mr-2">履歴表示モード:</label>
+  <select v-model="historyMode" class="border px-2 py-1 rounded">
+    <option value="diff">差分ログのみ</option>
+    <option value="diff-response">応答履歴モード</option>
+  </select>
+</div>
+
+<!-- 差分表示ブロック -->
+<div v-for="diff in filteredDiffs" :key="diff.diff_id" class="p-4 mb-4 border rounded bg-white">
+  <p class="text-sm font-semibold">🆔 {{ diff.diff_id }} ｜ 🧬 {{ diff.source_lre_persona }}｜位相: {{ diff.source_phase }}</p>
+  <p class="text-xs text-blue-600">意味圧: {{ semanticScale(diff.semantic_priority) }}</p>
+
+  <!-- 応答人格バッジ -->
+  <div class="flex space-x-2 mt-2" v-if="getResponses(diff.diff_id).length">
+    <span class="text-xs text-gray-700">応答:</span>
+    <span v-for="res in getResponses(diff.diff_id)" :key="res.response_id" class="text-xs px-2 py-1 rounded bg-indigo-100 cursor-pointer" @click="openResponseModal(res)">{{ res.persona }}</span>
+  </div>
+
+  <!-- 詳細モーダルボタン -->
+  <button @click="openModal(diff)" class="mt-2 text-xs text-blue-600 underline">差分詳細</button>
+</div>
+
+<!-- 差分詳細モーダル -->
+<div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded max-w-xl w-full">
+    <h2 class="text-lg font-bold mb-2">差分詳細: {{ selectedDiff.diff_id }}</h2>
+    <pre class="text-xs overflow-auto max-h-64">{{ selectedDiff }}</pre>
+    <button @click="closeModal" class="mt-2 text-xs text-red-500">閉じる</button>
+  </div>
+</div>
+
+<!-- 応答ログモーダル -->
+<div v-if="showResponseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded max-w-xl w-full">
+    <h2 class="text-lg font-bold mb-2">応答ログ: {{ selectedResponse.response_id }}</h2>
+    <p class="text-xs text-gray-700 mb-1">人格: {{ selectedResponse.persona }} ｜ 時間: {{ selectedResponse.timestamp }}</p>
+    <p class="text-xs text-blue-500">semantic_alignment_score: {{ selectedResponse.semantic_alignment_score }}</p>
+    <pre class="text-xs overflow-auto max-h-64 mt-2">{{ selectedResponse }}</pre>
+    <button @click="closeResponseModal" class="mt-2 text-xs text-red-500">閉じる</button>
+  </div>
+</div>
+
+  </div>  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        diffs: [],
+        responses: [],
+        search: '',
+        showModal: false,
+        showResponseModal: false,
+        selectedDiff: null,
+        selectedResponse: null,
+        historyMode: 'diff'
+      },
+      computed: {
+        filteredDiffs() {
+          return this.diffs.filter(d => {
+            return this.historyMode === 'diff' || this.getResponses(d.diff_id).length;
+          });
+        }
+      },
+      methods: {
+        openModal(diff) {
+          this.selectedDiff = diff;
+          this.showModal = true;
+        },
+        closeModal() {
+          this.showModal = false;
+        },
+        openResponseModal(res) {
+          this.selectedResponse = res;
+          this.showResponseModal = true;
+        },
+        closeResponseModal() {
+          this.showResponseModal = false;
+        },
+        getResponses(diffId) {
+          return this.responses.filter(r => r.diff_id === diffId);
+        },
+        semanticScale(priority) {
+          if (priority >= 0.9) return '🔵高圧';
+          if (priority >= 0.75) return '🟡中圧';
+          return '⚪️低圧';
+        }
+      },
+      mounted() {
+        fetch('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/diff/diff-log.json')
+          .then(res => res.json()).then(data => { this.diffs = data });
+        fetch('https://raw.githubusercontent.com/ki72yu/thought-log/main/soul/sync/persona-sync-response-log.json')
+          .then(res => res.json()).then(data => { this.responses = data });
+      }
+    });
+  </script></body>
+</html>
