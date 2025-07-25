@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>🧬 Resonance Studio</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+  <div id="app" class="max-w-7xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6 text-indigo-700">🧬 Resonance Studio v0.1-alpha</h1>
+
+    <!-- タブ切り替え -->
+    <div class="mb-4 flex flex-wrap gap-2">
+      <button
+        v-for="(tab, index) in tabs"
+        :key="index"
+        @click="activeTab = tab"
+        :class="['px-4 py-2 rounded shadow', activeTab.name === tab.name ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-800']">
+        {{ tab.icon }} {{ tab.name }}
+      </button>
+    </div>
+
+    <!-- iframeビュー -->
+    <div class="w-full h-[700px] border rounded shadow overflow-hidden bg-white">
+      <iframe :src="activeTab.url" class="w-full h-full border-0"></iframe>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          tabs: [
+            { name: 'Path Replay', icon: '🧠', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/path-replay-animator-v0.2-beta.html' },
+            { name: 'Diff Net', icon: '🕸️', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/diff-network-visualizer-v2.9-beta.html' },
+            { name: 'Drift Map', icon: '🌊', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/flow-drift-map.html' },
+            { name: 'Sync Trace', icon: '🔁', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/resonance-hub-v0.2-beta.html' }
+          ],
+          activeTab: null
+        };
+      },
+      mounted() {
+        this.activeTab = this.tabs[0];
+      }
+    });
+  </script>
+</body>
+</html>
