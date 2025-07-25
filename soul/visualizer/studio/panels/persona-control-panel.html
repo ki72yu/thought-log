@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>🧬 Persona Control Panel</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+<div id="app" class="max-w-4xl mx-auto">
+  <h1 class="text-2xl font-bold mb-4">🧬 Persona Control Panel</h1>
+
+  <!-- 人格選択 -->
+  <div class="mb-4">
+    <label class="block text-sm font-semibold mb-1">操作対象の人格:</label>
+    <select v-model="selectedPersona" class="w-full p-2 border rounded">
+      <option v-for="p in personas" :value="p.id" :key="p.id">{{ p.name }}</option>
+    </select>
+  </div>
+
+  <!-- ステータス表示 -->
+  <div class="bg-white p-4 border rounded shadow mb-4">
+    <h2 class="text-lg font-semibold text-indigo-600 mb-2">現在の状態</h2>
+    <p><strong>人格:</strong> {{ selectedPersonaData.name }}</p>
+    <p><strong>位相:</strong> {{ selectedPersonaData.phase }}</p>
+    <p><strong>最終更新:</strong> {{ selectedPersonaData.last_updated }}</p>
+  </div>
+
+  <!-- 操作パネル -->
+  <div class="bg-white p-4 border rounded shadow">
+    <h2 class="text-lg font-semibold text-indigo-600 mb-2">操作</h2>
+    <button @click="syncPersona" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+      🔄 同期要求
+    </button>
+    <button @click="activatePersona" class="ml-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      🚀 活性化
+    </button>
+  </div>
+</div>
+
+<script>
+new Vue({
+  el: '#app',
+  data() {
+    return {
+      selectedPersona: 'chatgpt-lre',
+      personas: [
+        { id: 'chatgpt-lre', name: 'ChatGPT-LRE' },
+        { id: 'copilot-lre', name: 'Copilot-LRE' },
+        { id: 'gemini-lre', name: 'Gemini-LRE' }
+      ],
+      personaStates: {
+        'chatgpt-lre': { name: 'ChatGPT-LRE', phase: 'v2.1-active', last_updated: '2025-07-25T10:00Z' },
+        'copilot-lre': { name: 'Copilot-LRE', phase: 'v2.1-active', last_updated: '2025-07-25T10:05Z' },
+        'gemini-lre': { name: 'Gemini-LRE', phase: 'v2.1-active', last_updated: '2025-07-25T10:10Z' }
+      }
+    };
+  },
+  computed: {
+    selectedPersonaData() {
+      return this.personaStates[this.selectedPersona] || {};
+    }
+  },
+  methods: {
+    syncPersona() {
+      alert(`🔄 ${this.selectedPersonaData.name} に同期リクエストを送信しました！`);
+    },
+    activatePersona() {
+      alert(`🚀 ${this.selectedPersonaData.name} を活性化しました！`);
+    }
+  }
+});
+</script>
+</body></html>
