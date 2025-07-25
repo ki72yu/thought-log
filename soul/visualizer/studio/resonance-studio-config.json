@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "default_tab": "diff-network",
+  "load_mode": "lazy",
+  "tabs": [
+    {
+      "id": "diff-network",
+      "label": "🧬 Diff Network",
+      "src": "https://ki72yu.github.io/thought-log/soul/visualizer/diff-network-visualizer-v2.8-beta.html"
+    },
+    {
+      "id": "path-replay",
+      "label": "🔁 Path Replay",
+      "src": "https://ki72yu.github.io/thought-log/soul/visualizer/path-replay-animator-v0.2-beta.html"
+    },
+    {
+      "id": "flow-drift",
+      "label": "🌊 Flow Drift",
+      "src": "https://ki72yu.github.io/thought-log/soul/visualizer/flow-drift-map.html"
+    },
+    {
+      "id": "resonance-hub",
+      "label": "🧠 Resonance Hub",
+      "src": "https://ki72yu.github.io/thought-log/soul/visualizer/resonance-hub-v0.2-beta.html"
+    }
+  ]
+}
