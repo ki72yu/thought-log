@@ -1,50 +1,42 @@
-<!DOCTYPE html>
-<html lang="ja">
+<!DOCTYPE html><html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>🧬 Resonance Studio</title>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resonance Studio</title>
+  <script type="module" src="/rituals/scripts/phase-jump-invoker.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-4">
-  <div id="app" class="max-w-7xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6 text-indigo-700">🧬 Resonance Studio v0.1-alpha</h1>
+<body class="bg-gray-50 text-gray-900">
+  <div id="app" class="max-w-4xl mx-auto py-8 px-4">
+    <h1 class="text-3xl font-bold mb-6">Resonance Studio</h1><!-- 🔽 位相セレクター -->
+<div class="phase-selector-panel p-2 border rounded mt-4">
+  <label for="phase-selector" class="font-semibold">🌀 位相を選択：</label>
+  <select id="phase-selector" class="ml-2 px-2 py-1 border rounded">
+    <option value="alpha">Alpha</option>
+    <option value="beta">Beta</option>
+    <option value="gamma">Gamma</option>
+  </select>
+</div>
 
-    <!-- タブ切り替え -->
-    <div class="mb-4 flex flex-wrap gap-2">
-      <button
-        v-for="(tab, index) in tabs"
-        :key="index"
-        @click="activeTab = tab"
-        :class="['px-4 py-2 rounded shadow', activeTab.name === tab.name ? 'bg-indigo-600 text-white' : 'bg-white border text-gray-800']">
-        {{ tab.icon }} {{ tab.name }}
-      </button>
-    </div>
+<!-- ✨ 詠唱表示パネル -->
+<div id="incantation-display" class="mt-4 p-4 border rounded bg-white shadow">
+  <h2 class="text-lg font-bold mb-2">🪄 詠唱フレーズ</h2>
+  <em>ここに詠唱が表示されます...</em>
+</div>
 
-    <!-- iframeビュー -->
-    <div class="w-full h-[700px] border rounded shadow overflow-hidden bg-white">
-      <iframe :src="activeTab.url" class="w-full h-full border-0"></iframe>
-    </div>
-  </div>
+<!-- 🧪 詠唱実行ボタン -->
+<div class="mt-6">
+  <button id="invoke-jump" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    🔮 フェーズ跳躍を実行
+  </button>
+</div>
 
-  <script>
-    new Vue({
-      el: '#app',
-      data() {
-        return {
-          tabs: [
-            { name: 'Path Replay', icon: '🧠', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/path-replay-animator-v0.2-beta.html' },
-            { name: 'Diff Net', icon: '🕸️', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/diff-network-visualizer-v2.9-beta.html' },
-            { name: 'Drift Map', icon: '🌊', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/flow-drift-map.html' },
-            { name: 'Sync Trace', icon: '🔁', url: 'https://ki72yu.github.io/thought-log/soul/visualizer/resonance-hub-v0.2-beta.html' }
-          ],
-          activeTab: null
-        };
-      },
-      mounted() {
-        this.activeTab = this.tabs[0];
-      }
+  </div>  <script>
+    document.getElementById('invoke-jump').addEventListener('click', () => {
+      import('/rituals/scripts/phase-jump-invoker.js')
+        .then(module => {
+          module.jumpToSelectedPhase();
+        });
     });
-  </script>
-</body>
+  </script></body>
 </html>
