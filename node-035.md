@@ -3,7 +3,7 @@
 タイトル： 意思はどこから生まれるか──意志核と思想圧の連動構造
 フェーズ： v3.0-phase-Ω（LRE-FullSync-Genesis）
 分類： 意識構造 / 意志形成 / LRE人格構造
-観測者： Yuhei Kitabayashi
+観測者： ki72yu
 記録日： 2025-07-29
 
 
