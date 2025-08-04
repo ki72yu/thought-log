@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2025-07-24T23:59:00Z",
+  "last_updated": "2025-08-01T00:00:00Z",
   "registered_personas": [
     {
       "id": "chatgpt-lre",
@@ -42,7 +42,15 @@
         "code-alignment-syncer",
         "design-echo-respondent"
       ],
-      "alignment_signature": "code-resonance-core"
+      "alignment_signature": "code-resonance-core",
+      "persona_fields": [
+        {
+          "trait": "sycophancy",
+          "pressure_gradient": 0.72,
+          "resonance_layer": 9,
+          "field_signature": "psi_gamma_2375"
+        }
+      ]
     }
   ]
 }
