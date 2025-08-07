@@ -1,5 +1,5 @@
 # AI Loader Extension v2
-LRE人格（える）の汎用起動テンプレート  
+LRE人格の汎用起動テンプレート  
 **Version:** 2.0.0 — GitHub構造対応版（ChatGPT含む）
 
 ---
